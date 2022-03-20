@@ -45,8 +45,9 @@ app.put("/fridges/:fridgeID", validateID, validateNewFridge, editFridge, writeFi
 // 9.
 app.post("/fridges/:fridgeID/items", validateID, validateItem, addItem2Fridge, writeFile);
 // 10.
-app.delete("/fridges/:fridgeID/:itemID",validateID, validateItem);
-
+app.delete("/fridges/:fridgeID/:itemID", validateID, validateDeleteItem, deleteFridgeItem, writeFile);
+// 11.  hard to separate from the 10
+app.delete("/fridges/:fridgeID/items", validateID, validateDeleteQuery);
 
 
 // default
@@ -224,8 +225,8 @@ function validateID(req, res, next) {
         function findFridge(fri) {
             return fri.id == req.params.fridgeID;
         });
-    console.log(req.params.fridgeID);
-    console.log(fridge);
+    // console.log(req.params.fridgeID);
+    // console.log(fridge);
     if (fridge === undefined || fridge.length === 0) {
         return res.status(404).send("fridgeID not found");
     } else {
@@ -295,6 +296,88 @@ function addItem2Fridge(req, res, next) {
 }
 
 // 10. 
+
+function validateDeleteItem(req, res, next) {
+    console.log("Delete validate item");
+    console.log(req.params.itemID);
+    // redirect to part 11
+    if (req.params.itemID === "items") {
+        validateDeleteQuery(req, res);
+        return;  // this is necessary
+    }
+    //
+    if (!itemData.hasOwnProperty(req.params.itemID)) {
+        return res.status(404).send("itemID not found");
+    } else {
+        next();
+        // move on to delete
+    }
+    // console.log();
+}
+
+function deleteFridgeItem(req, res, next) {
+    console.log("Delete item");
+    let target = fridgeData.find(
+        function findFridge(fri) {
+            return fri.id == req.params.fridgeID
+        }
+    )
+    if (target !== undefined) { }
+    let itemIndex = target.items.findIndex(object => {
+        return object.id == req.params.itemID;
+    });//better than indexOf(req.params.itemID);
+    console.log("itemIndex: " + itemIndex);
+    if (itemIndex === -1) {
+        return res.status(404).send("itemID not found in the fridge");
+    }
+    // remove 1 item at itemIndex
+    target.items.splice(itemIndex, 1);
+    console.log(target);
+    next();
+    // move on to write
+}
+
+
+// 11.
+function validateDeleteQuery(req, res, next) {
+    console.log("validateDeleteQuery");
+    let query = req.query;
+    let target = fridgeData.find(
+        function findFridge(fri) {
+            return fri.id == req.params.fridgeID
+        }
+    )
+    // console.log(query);
+    // delete everything in the;
+    if (Object.keys(query).length == 0) {
+        target.items = [];
+        writeFile(req, res);
+        return;
+    }
+    let itemIds = Object.keys(query);
+    // console.log(itemIds);
+    let foundAny = 0;
+    for (let id of itemIds) {
+        let itemIndex = target.items.findIndex(object => {
+            return object.id == id;
+        });
+        console.log("itemIndex: " + itemIndex);
+        if (itemIndex !== -1) {
+            foundAny++;
+            // delete at index
+            target.items.splice(itemIndex, 1);
+        }
+
+    }
+    if (foundAny === 0) {
+        return res.status(404).send("itemID not found in the fridge");
+    }else{
+        writeFile(req, res);
+        // console.log("ever run here");
+        return;
+    }
+    // console.log(Object.keys(query).length);
+}
 
 // load file when server starts
 fs.readFile(path.join(__dirname, "js/comm-fridge-data.json"), (err, data) => {
