@@ -27,6 +27,13 @@ let fridgeData = {};
 let itemData = {};
 let nextID = 0;
 
+let returnInfo = 0;
+// const noInfo =0;
+// const updatedInfo = 8;
+// const addedItem = 9;
+// const addedFridge = 5;
+
+
 // ROUTES
 // 1.
 app.get("/", loadHome);
@@ -36,31 +43,33 @@ app.get("/fridges", getFridges);
 app.get("/fridges/addFridge", addFridges);
 // 5.
 app.post("/fridges", validateNewFridge, addNewFridge, writeFile);
+// 7.  swape with 6 to separate routes
+app.get("/fridges/editFridge", loadEditFridge);
 // 6.
 app.get("/fridges/:fridgeID", retrieveFridge);
-// 7.
-app.get("/fridges/editFridge", loadEditFridge);
 // 8. 
 app.put("/fridges/:fridgeID", validateID, validateNewFridge, editFridge, writeFile);
 // 9.
 app.post("/fridges/:fridgeID/items", validateID, validateItem, addItem2Fridge, writeFile);
+// 11.  swape with 10 to separate routes
+app.delete("/fridges/:fridgeID/items", validateID, validateDeleteQuery);
 // 10.
 app.delete("/fridges/:fridgeID/:itemID", validateID, validateDeleteItem, deleteFridgeItem, writeFile);
-// 11.  hard to separate from the 10
-app.delete("/fridges/:fridgeID/items", validateID, validateDeleteQuery);
+
 
 
 // default
 app.put("*", (req, res) => {
-    res.status(500).send("bad request");
+    res.status(400).send("bad request");
 });
-
+// this does not work for separate bad post requests
+// localhost:8000/fridges/fg-1/items/?11&2&6&7
 app.post("*", (req, res) => {
-    res.status(500).send("bad request");
+    res.status(400).send("bad request");
 });
 
 app.get("*", (req, res) => {
-    res.status(500).send("bad request");
+    res.status(400).send("bad request");
 });
 // 1.
 function loadHome(req, res) {
@@ -126,6 +135,7 @@ function addFridges(req, res) {
 //5.
 function validateNewFridge(req, res, next) {
     console.log("validateNewFridge");
+    returnInfo = 1;
     if (req.body.name === undefined || req.body.name === "" || req.body.can_accept_items === undefined || req.body.can_accept_items === ""
         || req.body.accepted_types === undefined || req.body.accepted_types.length === 0 ||
         req.body.contact_person === undefined || req.body.contact_person === "" || req.body.contact_phone === undefined ||
@@ -159,19 +169,12 @@ function addNewFridge(req, res, next) {
     newFridge.address.country = "Canada";
     console.log(newFridge);
     fridgeData.push(newFridge);
+    returnInfo = 1;
     next();
 
 }
 
-function writeFile(req, res, next) {
-    fs.writeFile(path.join(__dirname, "js/comm-fridge-data.json"), JSON.stringify(fridgeData), (err, data) => {
-        if (err) {
-            return res.status(500).send("Database error: write to json")
-        }
-        return res.status(200).send("Successfully wrote to json");
-    })
-    console.log("saving comm-fridge-data.json");
-}
+
 
 // 6. retrieve fridge by id
 // todo 400 and 500
@@ -185,15 +188,25 @@ function retrieveFridge(req, res) {
     // } else {
 
 
-    // redirect to part 7 
-    if (req.params.fridgeID === "editFridge") {
-        loadEditFridge(req, res);
-        return;
+
+    if (req.params.fridgeID === "") {
+        return res.status(400).send();
     }
-    let fridge = fridgeData.filter(
-        function findFridge(fri) {
-            return fri.id == req.params.fridgeID;
-        });
+    // redirect to part 7 
+    // if (req.params.fridgeID === "editFridge") {
+    //     loadEditFridge(req, res);
+    //     return;
+    // }
+    let fridge;
+    try {
+        fridge = fridgeData.filter(
+            function findFridge(fri) {
+                return fri.id == req.params.fridgeID;
+            });
+    }
+    catch (err) {
+        return res.status(500).send();
+    }
     if (fridge === undefined || fridge.length === 0) {
         return res.status(404).send();
     }
@@ -221,6 +234,7 @@ function loadEditFridge(req, res) {
 
 function validateID(req, res, next) {
     console.log("validateFridgeID");
+    returnInfo = 1;
     let fridge = fridgeData.filter(
         function findFridge(fri) {
             return fri.id == req.params.fridgeID;
@@ -290,6 +304,7 @@ function addItem2Fridge(req, res, next) {
         }
         target.items.push(newItem);
         // redirect to writeFile
+        returnInfo = 1;
         next();
     }
 
@@ -301,10 +316,10 @@ function validateDeleteItem(req, res, next) {
     console.log("Delete validate item");
     console.log(req.params.itemID);
     // redirect to part 11
-    if (req.params.itemID === "items") {
-        validateDeleteQuery(req, res);
-        return;  // this is necessary
-    }
+    // if (req.params.itemID === "items") {
+    //     validateDeleteQuery(req, res);
+    //     return;  // this is necessary
+    // }
     //
     if (!itemData.hasOwnProperty(req.params.itemID)) {
         return res.status(404).send("itemID not found");
@@ -333,6 +348,7 @@ function deleteFridgeItem(req, res, next) {
     // remove 1 item at itemIndex
     target.items.splice(itemIndex, 1);
     console.log(target);
+    returnInfo = 0;   //hide 200 return message
     next();
     // move on to write
 }
@@ -351,6 +367,7 @@ function validateDeleteQuery(req, res, next) {
     // delete everything in the;
     if (Object.keys(query).length == 0) {
         target.items = [];
+        returnInfo =0;
         writeFile(req, res);
         return;
     }
@@ -371,12 +388,33 @@ function validateDeleteQuery(req, res, next) {
     }
     if (foundAny === 0) {
         return res.status(404).send("itemID not found in the fridge");
-    }else{
+    } else {
+        returnInfo = 0; // hide info
         writeFile(req, res);
         // console.log("ever run here");
         return;
     }
     // console.log(Object.keys(query).length);
+}
+
+
+function writeFile(req, res, next) {
+    fs.writeFile(path.join(__dirname, "js/comm-fridge-data.json"), JSON.stringify(fridgeData), (err, data) => {
+        if (err) {
+            return res.status(500).send("Database error: write to json")
+        }
+        console.log(req.params);
+        console.log(req.body);
+        if (returnInfo > 0) {
+            console.log("return with indo");
+            return res.status(200).send(req.body);
+        }
+        else {
+            return res.status(200).send();
+        }
+
+    })
+    console.log("saving comm-fridge-data.json");
 }
 
 // load file when server starts
