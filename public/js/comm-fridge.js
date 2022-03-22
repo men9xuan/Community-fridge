@@ -1,8 +1,8 @@
-window.onload = function(){
+window.onload = function () {
 	let pageId = document.getElementsByTagName("body")[0].id;
 	// retriveItemData();
 	console.log("=========");
-	if(pageId != null && pageId == "view_items"){
+	if (pageId != null && pageId == "view_items") {
 
 		retriveFridgeData();
 		// retriveItemData();
@@ -17,84 +17,94 @@ let items;
 function retriveFridgeData() {
 	xhttp = new XMLHttpRequest(); // create a new XMLHttpRequest object
 	xhttp.onreadystatechange = processFridgeData; // specify what should happen when the server sends a response
-  
+
 	// TODO: set the URL to be http://localhost:8000/students
 	xhttp.open("GET", "http://localhost:8000/fridges", true); // open a connection to the server using the GET protocol
-  
+
 	// TODO: add an application/json Accept request header for the request
 	xhttp.setRequestHeader("Accept", "application/json");
-  
+
 	xhttp.send(); // send the request to the server
-  }
-  
-  // process the response from the AJAX call. Specifically, use the JSON data retrieved to populate the table in the HTML page
-  function processFridgeData() {
+}
+
+// process the response from the AJAX call. Specifically, use the JSON data retrieved to populate the table in the HTML page
+function processFridgeData() {
 	if (xhttp.readyState === XMLHttpRequest.DONE && xhttp.status === 200) {
-	  fridges = JSON.parse(xhttp.responseText);
-	  console.log(fridges);
-	  retriveItemData();
-	//   displayFridges(); 
-	//   populateStudents(data);
+		fridges = JSON.parse(xhttp.responseText);
+		console.log(fridges);
+		retriveItemData();
+		//   displayFridges(); 
+		//   populateStudents(data);
 	}
 	else {
-	  console.log("There was a problem with the request.");
+		console.log("There was a problem with the request.");
 	}
-  }
+}
 
 
-  function retriveItemData() {
+function retriveItemData() {
 	xhttp = new XMLHttpRequest(); // create a new XMLHttpRequest object
 	xhttp.onreadystatechange = processItemData; // specify what should happen when the server sends a response
-  
+
 	// TODO: set the URL to be http://localhost:8000/students
 	xhttp.open("GET", "http://localhost:8000/items", true); // open a connection to the server using the GET protocol
-  
+
 	// TODO: add an application/json Accept request header for the request
 	xhttp.setRequestHeader("Accept", "application/json");
-  
+
 	xhttp.send(); // send the request to the server
-  }
-  
-  // process the response from the AJAX call. Specifically, use the JSON data retrieved to populate the table in the HTML page
-  function processItemData() {
+}
+
+// process the response from the AJAX call. Specifically, use the JSON data retrieved to populate the table in the HTML page
+function processItemData() {
 	if (xhttp.readyState === XMLHttpRequest.DONE && xhttp.status === 200) {
-	  items = JSON.parse(xhttp.responseText);
-	  console.log(items);
-	//   displayFridges();
-	displayFridges(); 
-	//   populateStudents(data);
+		items = JSON.parse(xhttp.responseText);
+		console.log(items);
+		//   displayFridges();
+		displayFridges();
+		//   populateStudents(data);
 	}
 	else {
-	  console.log("There was a problem with the request.");
+		console.log("There was a problem with the request.");
 	}
-  }
+}
 
-function displayFridges(pageId){
+function displayFridges(pageId) {
 	let fridgesSection = document.getElementById("fridges");
 	let header = document.createElement("h1");
 	header.textContent = "Available fridges";
 	fridgesSection.appendChild(header);
 
-	for(let i = 0; i < fridges.length; i++){
+	for (let i = 0; i < fridges.length; i++) {
 		let fridgeData = document.createElement("div");
 		fridgeData.id = "fridge_" + i;
 
 		let fridgeContent = "<img src='images/fridge.svg'></span>";
 		fridgeContent += "<span><strong>" + fridges[i].name + "</strong></span>";
-		fridgeContent	+= "<span>" + fridges[i].address.street + "</span>";
+		fridgeContent += "<span>" + fridges[i].address.street + "</span>";
 		fridgeContent += "<span>" + fridges[i].contact_phone + "</span>"
 
 		fridgeData.innerHTML = fridgeContent;
-		fridgeData.addEventListener("click", function(event){
+		
+		fridgeData.addEventListener("click", function (event) {
 			let fridgeID = event.currentTarget.id.split("_")[1];
 			displayFridgeContents(parseInt(fridgeID));
 		});
+		var button = document.createElement("BUTTON");
+		button.innerHTML = "Edit";
+		button. addEventListener('click', function (event){
+			event.preventDefault();
+			window.location = 'fridges/editFridge?fridgeID=fg-'+i;
+		});
+	// 	appendTo.appendChild(b);
+	//   }
+		fridgeData.appendChild(button);
 
 		fridgesSection.appendChild(fridgeData);
 	}
 }
 
-function displayFridgeContents(fridgeID){
+function displayFridgeContents(fridgeID) {
 	// retriveItemData();
 	document.getElementById("frigeHeading").innerHTML = "Items in the " + fridges[fridgeID].name;
 	let bioInformation = "<span id='fridge_name'>" + fridges[fridgeID].name + "</span><br />" + fridges[fridgeID].address.street + "<br />" + fridges[fridgeID].contact_phone;
@@ -103,14 +113,14 @@ function displayFridgeContents(fridgeID){
 	let capacity = ((fridges[fridgeID].items.length) / (parseInt(fridges[fridgeID].can_accept_items)));
 	capacity = Math.round(capacity * 100);
 
-	document.getElementById("meter").innerHTML = "<span style='width: " + (capacity + 14.2)  + "%'>" + capacity + "%</span>";
+	document.getElementById("meter").innerHTML = "<span style='width: " + (capacity + 14.2) + "%'>" + capacity + "%</span>";
 
 	populateLeftMenu(fridgeID);
 
-  let middleColumn = document.getElementById("middle-column");
+	let middleColumn = document.getElementById("middle-column");
 	console.log(fridgeID);
 
-	for(let element of fridges[fridgeID].items){
+	for (let element of fridges[fridgeID].items) {
 		let itemID = parseInt(element.id);
 		let item = items[itemID];
 
@@ -157,23 +167,23 @@ function displayFridgeContents(fridgeID){
 function processIncrease(event) {
 	let elementId = event.currentTarget.parentElement.id;
 	let numID = elementId.split("-")[1];
-	let amount = parseInt(document.getElementById("amount-"+numID).textContent);
+	let amount = parseInt(document.getElementById("amount-" + numID).textContent);
 	let quantity = parseInt(document.getElementById("qt-" + numID).textContent);
 	let name = document.getElementById("nm-" + numID).textContent;
 
 	let elementExists = document.getElementById("pk-item-" + numID);
 
-	if(amount < quantity){
-		document.getElementById("amount-"+numID).innerHTML = amount + 1;
+	if (amount < quantity) {
+		document.getElementById("amount-" + numID).innerHTML = amount + 1;
 
-		if(elementExists == null){
+		if (elementExists == null) {
 			let li = document.createElement("li");
 			li.setAttribute("id", "pk-item-" + numID);
-			li.innerHTML = "<span>" + (amount+1) + "</span> x " + name;
+			li.innerHTML = "<span>" + (amount + 1) + "</span> x " + name;
 			document.getElementById("items_picked").appendChild(li);
 		}
 		else {
-			document.getElementById("pk-item-"+numID).innerHTML = "<span>" + (amount+ 1) + "</span> x " + name;
+			document.getElementById("pk-item-" + numID).innerHTML = "<span>" + (amount + 1) + "</span> x " + name;
 		}
 	}
 }
@@ -181,42 +191,42 @@ function processDecrease(event) {
 	let elementId = event.currentTarget.parentElement.id;
 	let numID = elementId.split("-")[1];
 
-	let amount = parseInt(document.getElementById("amount-"+numID).textContent);
+	let amount = parseInt(document.getElementById("amount-" + numID).textContent);
 	let quantity = parseInt(document.getElementById("qt-" + numID).textContent);
 	let elementExists = document.getElementById("pk-item-" + numID);
 	let name = document.getElementById("nm-" + numID).textContent;
 
-	if(amount > 0){
+	if (amount > 0) {
 		document.getElementById("amount-" + numID).innerHTML = parseInt(amount) - 1;
-		if(elementExists == null){
-				let li = document.createElement("li");
-				li.setAttribute("id", "pk-item-" + numID);
-				li.innerHTML = "<span>" + parseInt(amount) - 1 + "</span> x " + name;
-				document.getElementById("items_picked").appendChild(li);
+		if (elementExists == null) {
+			let li = document.createElement("li");
+			li.setAttribute("id", "pk-item-" + numID);
+			li.innerHTML = "<span>" + parseInt(amount) - 1 + "</span> x " + name;
+			document.getElementById("items_picked").appendChild(li);
 		}
-		else{
-			if(amount == 1){
-				let item = document.getElementById("pk-item-"+numID);
-				console.log("item-"+numID)
+		else {
+			if (amount == 1) {
+				let item = document.getElementById("pk-item-" + numID);
+				console.log("item-" + numID)
 				item.remove();
 			}
-			else{
-					document.getElementById("pk-item-"+numID).innerHTML = "<span>" + (amount- 1) + "</span> x " + name;
+			else {
+				document.getElementById("pk-item-" + numID).innerHTML = "<span>" + (amount - 1) + "</span> x " + name;
 			}
 		}
 	}
 }
 
-function populateLeftMenu(fridgeID){
+function populateLeftMenu(fridgeID) {
 	let categories = {};
 	// retriveItemData();
-	for(let element of fridges[fridgeID].items){
+	for (let element of fridges[fridgeID].items) {
 		//console.log(element);
 		let itemID = parseInt(element.id);
 		let item = items[itemID];
 
 		let type = item.type;
-		if(type in categories == false){
+		if (type in categories == false) {
 			categories[type] = 1;
 		}
 		else {
@@ -225,28 +235,28 @@ function populateLeftMenu(fridgeID){
 	}
 
 	let leftMenu = document.getElementById("categories");
-	for(const[key, value] of Object.entries(categories)){
+	for (const [key, value] of Object.entries(categories)) {
 		let label = key.charAt(0).toUpperCase() + key.slice(1);
 		let listItem = document.createElement("li");
 		listItem.id = key;
 		listItem.className = "category";
-		listItem.textContent = label + " (" + value  + ")";
+		listItem.textContent = label + " (" + value + ")";
 
 		listItem.addEventListener("click", filterMiddleView);
 		leftMenu.appendChild(listItem);
 	}
 }
 
-function filterMiddleView(event){
+function filterMiddleView(event) {
 	let elements = document.getElementById("middle-column").children;
 	let category = event.target.id;
 
-	for(let i = 0; i < elements.length; i++){
+	for (let i = 0; i < elements.length; i++) {
 		let item = elements[i];
-		if(!item.classList.contains(category)){
+		if (!item.classList.contains(category)) {
 			item.classList.add("hidden");
 		}
-		else{
+		else {
 			item.classList.remove("hidden");
 		}
 	}

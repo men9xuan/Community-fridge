@@ -1,7 +1,10 @@
 window.onload = function initializePage() {
   let items = document.querySelectorAll("input");
   let submitButton = document.querySelector("#btnSubmit");
-
+  let querystring = window.location.search.substring(1)
+  console.log(querystring);
+  fridgeID = querystring.slice(-4);
+  console.log("Modifying fridge:"+ fridgeID);
 
   // add an event listener to all of the text fields
   for (let i = 0; i < items.length - 1; i++) {
@@ -14,7 +17,7 @@ window.onload = function initializePage() {
   // console.log(students);
 };
 
-
+let fridgeID =""
 // TODO: function makes an AJAX call to our localhost to retrieve data from the students.json file
 // Make changes to the following code so that the URL http://localhost:8000/students is requested from the server with an accept header of type JSON
 // this function should call the processStudentData callback function to process the data
@@ -156,7 +159,7 @@ function processForm(event) {
       console.log("The category data was successfully updated!");
       console.log(xhttp.responseText);
       let message = document.querySelector("#respArea");
-      message.innerHTML = "New fridge added successfully";
+      message.innerHTML = "Fridge "+ fridgeID+ " edited successfully";
       message.classList.remove("hidden");
       setTimeout(() => {
         message.classList.add("hidden");
@@ -164,7 +167,7 @@ function processForm(event) {
     }
     else {
       let message = document.querySelector("#respArea");
-      message.innerHTML = "Failed to add new fridge, check console for errors";
+      message.innerHTML = "Failed to edit fridge, check console for errors";
       message.classList.remove("hidden");
       setTimeout(() => {
         message.classList.add("hidden");
@@ -172,11 +175,12 @@ function processForm(event) {
       console.log(xhttp.responseText);
     }
   };
-  let url = "http://localhost:8000/fridges";
+  // let fridgeID = "fg-1";
+  let url = "http://localhost:8000/fridges/"+fridgeID;
   console.log("url: " + url);
   console.log(requestBody);
 
-  xhttp.open("POST", url, true);
+  xhttp.open("PUT", url, true);
   // *** important: both POST and PUT expect a content-type to be set for the content. If this is missing, then the data will not be received on the server-side
   xhttp.setRequestHeader("Content-type", "application/json");
 
