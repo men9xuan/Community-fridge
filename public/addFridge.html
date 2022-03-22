@@ -1,12 +1,41 @@
 <!DOCTYPE html>
-<html lang = "en">
+<html lang="en">
 
 <head>
-  <title>Add fridge page</title>
-
-  <!-- Latest compiled and minified CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/comm-fridge.css" />
+  <link rel="stylesheet" href="../css/comm-fridge.css" />
 </head>
+
+<body>
+  <section>
+    <h1>Add a fridge</h1><br>
+    <form>
+      <label for="fridgeName">Fridge Name:</label>
+      <input type="text" id="fridgeName" name="fridgeName"><br><br>
+      <label for="numItemsAccepted">numItemsAccepted:</label>
+      <input type="text" id="numItemsAccepted" name="numItemsAccepted"><br><br>
+      <label for="acceptedTypes">acceptedTypes:</label>
+      <select name="acceptedTypes" id="acceptedTypes" multiple>
+      </select>
+
+      <br><br>
+      <label for="contactPerson">contactPerson:</label>
+      <input type="text" id="contactPerson" name="contactPerson"><br><br>
+      <label for="contactPhone">contactPhone:</label>
+      <input type="text" id="contactPhone" name="contactPhone"><br><br>
+      <label for="streetName">streetName:</label>
+      <input type="text" id="streetName" name="streetName"><br><br>
+      <label for="postalCode">postalCode:</label>
+      <input type="text" id="postalCode" name="postalCode"><br><br>
+      <label for="city">city:</label>
+      <input type="text" id="city" name="city"><br><br>
+      <label for="province">province:</label>
+      <input type="text" id="province" name="province"><br><br>
+      <input type="submit" disabled="true" id="btnSubmit" value="Submit" />
+    </form>
+  </section>
+  <script src="../js/add-fridge.js"></script>
+  <!-- <script src="../js/comm-fridge.js"></script> -->
+</body>
 
 </html>

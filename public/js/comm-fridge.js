@@ -1,9 +1,73 @@
 window.onload = function(){
 	let pageId = document.getElementsByTagName("body")[0].id;
+	// retriveItemData();
+	console.log("=========");
 	if(pageId != null && pageId == "view_items"){
-		displayFridges(pageId);
+
+		retriveFridgeData();
+		// retriveItemData();
+		// displayFridges(pageId);
+		//   xhttp get request for /js/comm-fridge-data.json
+		//   xhttp get request for /js/comm-fridge-items.json
 	}
 }
+let fridges;
+let items;
+
+function retriveFridgeData() {
+	xhttp = new XMLHttpRequest(); // create a new XMLHttpRequest object
+	xhttp.onreadystatechange = processFridgeData; // specify what should happen when the server sends a response
+  
+	// TODO: set the URL to be http://localhost:8000/students
+	xhttp.open("GET", "http://localhost:8000/fridges", true); // open a connection to the server using the GET protocol
+  
+	// TODO: add an application/json Accept request header for the request
+	xhttp.setRequestHeader("Accept", "application/json");
+  
+	xhttp.send(); // send the request to the server
+  }
+  
+  // process the response from the AJAX call. Specifically, use the JSON data retrieved to populate the table in the HTML page
+  function processFridgeData() {
+	if (xhttp.readyState === XMLHttpRequest.DONE && xhttp.status === 200) {
+	  fridges = JSON.parse(xhttp.responseText);
+	  console.log(fridges);
+	  retriveItemData();
+	//   displayFridges(); 
+	//   populateStudents(data);
+	}
+	else {
+	  console.log("There was a problem with the request.");
+	}
+  }
+
+
+  function retriveItemData() {
+	xhttp = new XMLHttpRequest(); // create a new XMLHttpRequest object
+	xhttp.onreadystatechange = processItemData; // specify what should happen when the server sends a response
+  
+	// TODO: set the URL to be http://localhost:8000/students
+	xhttp.open("GET", "http://localhost:8000/items", true); // open a connection to the server using the GET protocol
+  
+	// TODO: add an application/json Accept request header for the request
+	xhttp.setRequestHeader("Accept", "application/json");
+  
+	xhttp.send(); // send the request to the server
+  }
+  
+  // process the response from the AJAX call. Specifically, use the JSON data retrieved to populate the table in the HTML page
+  function processItemData() {
+	if (xhttp.readyState === XMLHttpRequest.DONE && xhttp.status === 200) {
+	  items = JSON.parse(xhttp.responseText);
+	  console.log(items);
+	//   displayFridges();
+	displayFridges(); 
+	//   populateStudents(data);
+	}
+	else {
+	  console.log("There was a problem with the request.");
+	}
+  }
 
 function displayFridges(pageId){
 	let fridgesSection = document.getElementById("fridges");
@@ -31,6 +95,7 @@ function displayFridges(pageId){
 }
 
 function displayFridgeContents(fridgeID){
+	// retriveItemData();
 	document.getElementById("frigeHeading").innerHTML = "Items in the " + fridges[fridgeID].name;
 	let bioInformation = "<span id='fridge_name'>" + fridges[fridgeID].name + "</span><br />" + fridges[fridgeID].address.street + "<br />" + fridges[fridgeID].contact_phone;
 
@@ -144,7 +209,7 @@ function processDecrease(event) {
 
 function populateLeftMenu(fridgeID){
 	let categories = {};
-
+	// retriveItemData();
 	for(let element of fridges[fridgeID].items){
 		//console.log(element);
 		let itemID = parseInt(element.id);

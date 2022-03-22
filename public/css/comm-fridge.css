@@ -32,14 +32,13 @@ h1 {
   color: inherit;
   background-color: transparent;
   cursor: pointer;
-
   background-color: #fa8176;
   border-radius: 20px;
-  padding: 20px 40px;
+  padding: 20px 30px;
   outline: 1px dotted black;
   color: white;
-  margin-right: 1.7em;
-  font-size: 1.9em;
+  margin-right: 0.7em;
+  font-size: 1.5em;
 }
 #intro a:focus {
   outline: 0;
@@ -367,6 +366,16 @@ input{
 }
 .hidden{
   display: none;
+}
+.error{
+  background-color: #fa8176;
+}
+.valid{
+  background-color: lightgreen;
+}
+
+option{
+  color: black;
 }
 #respArea{
   background-color: bisque;

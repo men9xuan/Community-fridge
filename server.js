@@ -10,6 +10,7 @@ console.log(PORT);
 
 // SET UP MIDDLEWARE
 app.use(express.static("public"));
+// app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use((req, res, next) => {
@@ -39,6 +40,8 @@ let returnInfo = 0;
 app.get("/", loadHome);
 // 2. 3.
 app.get("/fridges", getFridges);
+// ** for part 2
+app.get("/items", getItems);
 // 4.
 app.get("/fridges/addFridge", addFridges);
 // 5.
@@ -59,18 +62,18 @@ app.delete("/fridges/:fridgeID/:itemID", validateID, validateDeleteItem, deleteF
 
 
 // default
-app.put("*", (req, res) => {
-    res.status(400).send("bad request");
-});
-// this does not work for separate bad post requests
-// localhost:8000/fridges/fg-1/items/?11&2&6&7
-app.post("*", (req, res) => {
-    res.status(400).send("bad request");
-});
+// app.put("*", (req, res) => {
+//     res.status(400).send("bad request");
+// });
+// // this does not work for separate bad post requests
+// // localhost:8000/fridges/fg-1/items/?11&2&6&7
+// app.post("*", (req, res) => {
+//     res.status(400).send("bad request");
+// });
 
-app.get("*", (req, res) => {
-    res.status(400).send("bad request");
-});
+// app.get("*", (req, res) => {
+//     res.status(400).send("bad request");
+// });
 // 1.
 function loadHome(req, res) {
     res.set('Content-Type', 'text/html');
@@ -101,12 +104,31 @@ function getFridges(req, res) {
         });
         // 3.        
     } else if (req.accepts("json")) {
-        fs.access(path.join(__dirname, 'js/comm-fridge-data.json'), (err) => {
+        fs.access(path.join(__dirname, 'public/js/comm-fridge-data.json'), (err) => {
             if (err) {
                 res.status(404).send("cannot find the file: comm-fridge-data.json");
             } else {
                 res.set('Content-Type', 'application/json');
                 res.json(fridgeData);
+                // res.sendFile(path.join(__dirname, 'js/comm-fridge-data.json'), (err) => {
+                //     if (err) res.status(500).send("500 server error");
+                // });
+            }
+        });
+    } else {
+        res.status(500).send("500 server error");
+    }
+}
+
+// additional route for item.json for part2
+function getItems(req, res) {
+    if (req.accepts("json")) {
+        fs.access(path.join(__dirname, 'public/js/comm-fridge-items.json'), (err) => {
+            if (err) {
+                res.status(404).send("cannot find the file: comm-fridge-items.json");
+            } else {
+                res.set('Content-Type', 'application/json');
+                res.json(itemData);
                 // res.sendFile(path.join(__dirname, 'js/comm-fridge-data.json'), (err) => {
                 //     if (err) res.status(500).send("500 server error");
                 // });
@@ -399,8 +421,9 @@ function validateDeleteQuery(req, res, next) {
 
 
 function writeFile(req, res, next) {
-    fs.writeFile(path.join(__dirname, "js/comm-fridge-data.json"), JSON.stringify(fridgeData), (err, data) => {
+    fs.writeFile(path.join(__dirname, "public/js/comm-fridge-data.json"), JSON.stringify(fridgeData), (err, data) => {
         if (err) {
+            throw err;
             return res.status(500).send("Database error: write to json")
         }
         console.log(req.params);
@@ -418,10 +441,10 @@ function writeFile(req, res, next) {
 }
 
 // load file when server starts
-fs.readFile(path.join(__dirname, "js/comm-fridge-data.json"), (err, data) => {
+fs.readFile(path.join(__dirname, "public/js/comm-fridge-data.json"), (err, data) => {
     if (err) throw err;
     fridgeData = JSON.parse(data);
-    fs.readFile(path.join(__dirname, "js/comm-fridge-items.json"), (err, data) => {
+    fs.readFile(path.join(__dirname, "public/js/comm-fridge-items.json"), (err, data) => {
         if (err) throw err;
         itemData = JSON.parse(data);
     });
