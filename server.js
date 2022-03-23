@@ -359,6 +359,7 @@ function deleteFridgeItem(req, res, next) {
             return fri.id == req.params.fridgeID
         }
     )
+    // console.log(target);
     if (target !== undefined) { }
     let itemIndex = target.items.findIndex(object => {
         return object.id == req.params.itemID;

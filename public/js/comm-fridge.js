@@ -85,27 +85,29 @@ function displayFridges(pageId) {
 		fridgeContent += "<span>" + fridges[i].contact_phone + "</span>"
 
 		fridgeData.innerHTML = fridgeContent;
-		
+
 		fridgeData.addEventListener("click", function (event) {
 			let fridgeID = event.currentTarget.id.split("_")[1];
 			displayFridgeContents(parseInt(fridgeID));
 		});
 		var button = document.createElement("BUTTON");
 		button.innerHTML = "Edit";
-		button. addEventListener('click', function (event){
+		button.addEventListener('click', function (event) {
 			event.preventDefault();
-			window.location = 'fridges/editFridge?fridgeID=fg-'+i;
+			window.location = 'fridges/editFridge?fridgeID=fg-' + i;
 		});
-	// 	appendTo.appendChild(b);
-	//   }
+		// 	appendTo.appendChild(b);
+		//   }
 		fridgeData.appendChild(button);
 
 		fridgesSection.appendChild(fridgeData);
 	}
 }
 
+let currentFridgeID;
 function displayFridgeContents(fridgeID) {
 	// retriveItemData();
+	currentFridgeID = parseInt(fridgeID)+1;
 	document.getElementById("frigeHeading").innerHTML = "Items in the " + fridges[fridgeID].name;
 	let bioInformation = "<span id='fridge_name'>" + fridges[fridgeID].name + "</span><br />" + fridges[fridgeID].address.street + "<br />" + fridges[fridgeID].contact_phone;
 
@@ -186,6 +188,13 @@ function processIncrease(event) {
 			document.getElementById("pk-item-" + numID).innerHTML = "<span>" + (amount + 1) + "</span> x " + name;
 		}
 	}
+	let picked_count = document.getElementById("items_picked").childElementCount;
+	let button = document.querySelector("#submmit_btn");
+	if (picked_count > 0) {
+		button.classList.remove("hidden");
+	} else {
+		button.classList.add("hidden");
+	}
 }
 function processDecrease(event) {
 	let elementId = event.currentTarget.parentElement.id;
@@ -215,7 +224,72 @@ function processDecrease(event) {
 			}
 		}
 	}
+	let picked_count = document.getElementById("items_picked").childElementCount;
+	let button = document.querySelector("#submmit_btn");
+	if (picked_count > 0) {
+		button.classList.remove("hidden");
+	} else {
+		button.classList.add("hidden");
+	}
 }
+
+function sendDelete() {
+	let picked = document.getElementById("items_picked").children;
+	let fridgeID = "fg-" + currentFridgeID;
+	console.log("FridgeID:" + fridgeID);
+	let url = "http://localhost:8000/fridges/"+fridgeID+"/items/?";
+	for (let itm of picked) {
+		let itmID = itm.id.substring(8);
+		
+		url+=itmID;
+		url+= "&";
+		console.log("URL:" + url);
+		// pk-item-
+	}
+	
+
+
+	xhttp = new XMLHttpRequest(); // create a new XMLHttpRequest object
+
+	// specify what should happen when the server sends a response back
+	xhttp.onreadystatechange = function () {
+		if (xhttp.readyState === XMLHttpRequest.DONE && xhttp.status === 200) {
+			// let data = JSON.parse(xhttp.responseText);
+			// console.log(data);
+			console.log("==============================");
+			// populateStudents();
+			console.log("The category data was successfully updated!");
+			console.log(xhttp.responseText);
+			let message = document.querySelector("#respArea");
+			message.innerHTML = "Items picked up successfully";
+			message.classList.remove("hidden");
+			setTimeout(() => {
+				message.classList.add("hidden");
+			}, 3000);
+		}
+		else {
+			let message = document.querySelector("#respArea");
+			message.innerHTML = "Failed to pickup, check console for errors";
+			message.classList.remove("hidden");
+			setTimeout(() => {
+				message.classList.add("hidden");
+			}, 3000);
+			console.log(xhttp.responseText);
+		}
+	};
+	
+	console.log("url: " + url);
+	xhttp.open("DELETE", url, true);
+	// *** important: both POST and PUT expect a content-type to be set for the content. If this is missing, then the data will not be received on the server-side
+	//xhttp.setRequestHeader("Content-type", "application/json");
+
+	// *** important: if this header is not set, then the server would not be able to use the "Accept" header value to determine the type of resources to respond with
+	//xhttp.setRequestHeader("Accept", "application/json");
+
+	// *** important: the JSON object must be stringified before it is sent in the body of the response
+	xhttp.send(); // send the request to the server
+}
+
 
 function populateLeftMenu(fridgeID) {
 	let categories = {};
