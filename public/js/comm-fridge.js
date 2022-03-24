@@ -94,7 +94,8 @@ function displayFridges(pageId) {
 		button.innerHTML = "Edit";
 		button.addEventListener('click', function (event) {
 			event.preventDefault();
-			window.location = 'fridges/editFridge?fridgeID=fg-' + i;
+			let id = i+1;
+			window.location = 'fridges/editFridge?fridgeID=fg-' + id;
 		});
 		// 	appendTo.appendChild(b);
 		//   }

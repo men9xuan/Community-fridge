@@ -17,7 +17,7 @@ window.onload = function initializePage() {
   // console.log(students);
 };
 
-let fridgeID =""
+let fridgeID ="";
 // TODO: function makes an AJAX call to our localhost to retrieve data from the students.json file
 // Make changes to the following code so that the URL http://localhost:8000/students is requested from the server with an accept header of type JSON
 // this function should call the processStudentData callback function to process the data

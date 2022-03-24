@@ -430,7 +430,7 @@ function writeFile(req, res, next) {
         console.log(req.params);
         console.log(req.body);
         if (returnInfo > 0) {
-            console.log("return with indo");
+            console.log("save return with 200");
             return res.status(200).send(req.body);
         }
         else {
