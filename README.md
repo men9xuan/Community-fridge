@@ -1,4 +1,4 @@
-## Community fridge web application in Express
+## Community fridge web application
 
 This is my 3rd course assignment of COMP 2406
 
